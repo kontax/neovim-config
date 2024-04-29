@@ -29,7 +29,7 @@ return {
                 "lua_ls",
                 "rust_analyzer",
                 "tsserver",
-                "pylsp"
+                "pyright"
             },
             automatic_installation = true,
             handlers = {
