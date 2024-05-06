@@ -12,6 +12,10 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-    spec = "ktx.lazy",
-    change_detection = { notify = false }
+    { import = "ktx.plugins" },
+    { import = "ktx.plugins.lsp" }
+},{
+    checker = { enabled = true, notify = false },
+    change_detection = { notify = false },
+    install = { colorscheme = {'gruvbox'} },
 })
