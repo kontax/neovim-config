@@ -12,7 +12,7 @@ return {
                 "html",
                 "cssls",
                 "tailwindcss",
-                "tsserver",
+                "tsp_server",
                 "graphql",
                 "pyright",
                 "rust_analyzer",
