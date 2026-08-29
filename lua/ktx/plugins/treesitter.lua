@@ -1,50 +1,59 @@
 return {
     "nvim-treesitter/nvim-treesitter",
-    -- Upstream's default branch is now "main", a rewritten plugin with a
-    -- different API (no nvim-treesitter.configs module at all) - confirmed
-    -- live, an unpinned clone broke config() below with "module
-    -- 'nvim-treesitter.configs' not found". master still carries the
-    -- classic API this config (ensure_installed/highlight/indent/autotag)
-    -- is written against.
-    branch = "master",
-    event = { "BufReadPre", "BufNewFile" },
+    -- main (upstream's default branch, previously pinned to master to
+    -- keep the old API working - see git log) is a full, intentionally
+    -- incompatible rewrite; upstream's own README says to treat it as a
+    -- different plugin. There's no more setup()-config-table module
+    -- system (autotag included): parsers install imperatively via
+    -- .install(), and highlighting/indent are themselves plain Neovim
+    -- core features (:h treesitter-highlight, :h treesitter-indent) that
+    -- this plugin only supplies queries/indentexpr for - turned on
+    -- per-buffer below instead of a config flag. Also requires the
+    -- tree-sitter-cli binary on PATH now (home/programs/nvim.nix) and
+    -- doesn't support lazy-loading at all (upstream's own example spec
+    -- sets lazy = false).
+    branch = "main",
+    lazy = false,
     build = ":TSUpdate",
     dependencies = {
-        "windwp/nvim-ts-autotag",
+        -- Autotag dropped its own nvim-treesitter module registration for
+        -- the same reason - now a plain standalone setup() call, only
+        -- needing an active parser at edit time, same as this file's own
+        -- FileType autocmd relies on below.
+        { "windwp/nvim-ts-autotag", opts = {} },
     },
     config = function()
-        require("nvim-treesitter.configs").setup({
-            -- A list of parser names, or "all"
-            ensure_installed = {
-                "lua",
-                "vim",
-                "vimdoc",
-                "bash",
-                "yaml",
-                "json",
-                "dockerfile",
-                "gitignore",
-                "html",
-                "css",
-                "javascript",
-                "typescript",
-                "tsx",
-                "jsdoc",
-                "graphql",
-                "c",
-                "rust",
-                "python",
-            },
+        require("nvim-treesitter").install({
+            "lua",
+            "vim",
+            "vimdoc",
+            "bash",
+            "yaml",
+            "json",
+            "dockerfile",
+            "gitignore",
+            "html",
+            "css",
+            "javascript",
+            "typescript",
+            "tsx",
+            "jsdoc",
+            "graphql",
+            "c",
+            "rust",
+            "python",
+        })
 
-            sync_install = false,
-            auto_install = true,
-            indent = { enable = true },
-            autotag = { enable = true },
-
-            highlight = {
-                enable = true,
-                additional_vim_regex_highlighting = { "markdown" },
-            },
+        -- pcall guards both: a filetype with no installed (or no
+        -- available) parser should just fall back to Neovim's ordinary
+        -- syntax highlighting/indenting, not error on every buffer opened.
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = "*",
+            callback = function()
+                if pcall(vim.treesitter.start) then
+                    vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                end
+            end,
         })
     end
 }
