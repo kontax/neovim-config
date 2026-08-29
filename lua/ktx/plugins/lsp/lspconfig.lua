@@ -4,11 +4,8 @@ return {
     dependencies = {
         "hrsh7th/cmp-nvim-lsp",
         { "antosha417/nvim-lsp-file-operations", config = true },
-        { "folke/neodev.nvim",                   opts = {} },
     },
     config = function()
-        local lspconfig = require("lspconfig")
-        local mason_lspconfig = require("mason-lspconfig")
         local cmp_nvim_lsp = require("cmp_nvim_lsp")
         local keymap = vim.keymap
 
@@ -69,50 +66,47 @@ return {
             vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
         end
 
-        mason_lspconfig.setup_handlers({
-            function(server_name)
-                lspconfig[server_name].setup({
-                    capabilities = capabilities,
-                })
-            end,
+        -- mason-lspconfig no longer wraps lspconfig[server].setup() itself
+        -- (setup_handlers was removed upstream, replaced by an
+        -- automatic_enable feature built on Neovim's own native
+        -- vim.lsp.config/vim.lsp.enable, added in 0.11) - mason.lua's
+        -- mason-lspconfig.setup() auto-enables every mason-installed
+        -- server; this just registers the config each one picks up when
+        -- it starts. vim.lsp.config('*', ...) applies to every server,
+        -- same as the old handlers' fallback function did.
+        vim.lsp.config('*', { capabilities = capabilities })
 
-            -- configure lua server (with special settings)
-            ["lua_ls"] = function()
-                lspconfig["lua_ls"].setup({
-                    capabilities = capabilities,
-                    settings = {
-                        Lua = {
-                            -- make the language server recognize "vim" global
-                            diagnostics = {
-                                globals = { "vim" },
-                            },
-                            completion = {
-                                callSnippet = "Replace",
-                            },
-                        },
+        -- configure lua server (with special settings)
+        vim.lsp.config('lua_ls', {
+            settings = {
+                Lua = {
+                    -- make the language server recognize "vim" global
+                    diagnostics = {
+                        globals = { "vim" },
                     },
-                })
-            end,
+                    completion = {
+                        callSnippet = "Replace",
+                    },
+                },
+            },
+        })
 
-            -- Use Ruff instead of pyright for diagnostics
-            ["pyright"] = function()
-                lspconfig["pyright"].setup({
-                    settings = {
-                        pyright = {
-                            disableOrganizeImports = true, -- Using Ruff
-                            disableTaggedHints = true,
+        -- Use Ruff instead of pyright for diagnostics
+        vim.lsp.config('pyright', {
+            settings = {
+                pyright = {
+                    disableOrganizeImports = true, -- Using Ruff
+                    disableTaggedHints = true,
+                },
+                python = {
+                    analysis = {
+                        ignore = { '*' }, -- Using Ruff
+                        diagnosticSeverityOverrides = {
+                            reportUndefinedVariable = "none",
                         },
-                        python = {
-                            analysis = {
-                                ignore = { '*' }, -- Using Ruff
-                                diagnosticSeverityOverrides = {
-                                    reportUndefinedVariable = "none",
-                                },
-                            }
-                        }
                     }
-                })
-            end,
+                }
+            }
         })
     end
 }
