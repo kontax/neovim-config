@@ -1,5 +1,12 @@
 return {
     "nvim-treesitter/nvim-treesitter",
+    -- Upstream's default branch is now "main", a rewritten plugin with a
+    -- different API (no nvim-treesitter.configs module at all) - confirmed
+    -- live, an unpinned clone broke config() below with "module
+    -- 'nvim-treesitter.configs' not found". master still carries the
+    -- classic API this config (ensure_installed/highlight/indent/autotag)
+    -- is written against.
+    branch = "master",
     event = { "BufReadPre", "BufNewFile" },
     build = ":TSUpdate",
     dependencies = {
