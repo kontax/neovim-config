@@ -55,5 +55,20 @@ return {
                 }),
             },
         })
+
+        -- Snippets expanded fine but had no way to move between their own
+        -- placeholders - nothing bound luasnip.jump anywhere. Guarded by
+        -- jumpable() so these fall through to <C-l>/<C-h>'s normal
+        -- meaning (screen redraw / cursor left) outside an active snippet.
+        vim.keymap.set({ "i", "s" }, "<C-l>", function()
+            if luasnip.jumpable(1) then
+                luasnip.jump(1)
+            end
+        end, { desc = "Jump to next snippet placeholder" })
+        vim.keymap.set({ "i", "s" }, "<C-h>", function()
+            if luasnip.jumpable(-1) then
+                luasnip.jump(-1)
+            end
+        end, { desc = "Jump to previous snippet placeholder" })
     end
 }
