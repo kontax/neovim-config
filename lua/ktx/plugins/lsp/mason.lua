@@ -12,7 +12,7 @@ return {
                 "html",
                 "cssls",
                 "tailwindcss",
-                "tsp_server",
+                "ts_ls", -- was "tsp_server", a typo matching no server at all
                 "graphql",
                 "pyright",
                 "rust_analyzer",
@@ -26,7 +26,11 @@ return {
                 "prettier",
                 "stylua",
                 "ruff",
-                "rustfmt",
+                -- rustfmt isn't in Mason's registry at all (it ships with
+                -- rustup, not as a standalone mason package) - confirmed
+                -- live, this errored "Cannot find package rustfmt" on
+                -- every startup. Install via `rustup component add
+                -- rustfmt` instead.
                 "rustywind",
                 "eslint_d",
             },
