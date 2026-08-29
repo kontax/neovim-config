@@ -13,7 +13,6 @@ opt.directory = os.getenv("HOME") .. "/.vim/tmp"        -- Keep swap files in on
 opt.wildmenu = true                     -- Enhance command line completion
 opt.wildmode = "list:longest"           -- Complete files like a shell
 
-opt.binary = true                       -- Write files as they are without changing line endings
 opt.hidden = true                       -- Handle multiple buffers better
 
 
