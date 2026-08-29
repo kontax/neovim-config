@@ -39,6 +39,10 @@ return {
                 ["<CR>"] = cmp.mapping.confirm({ select = false }),
             }),
             sources = cmp.config.sources({
+                -- group_index = 0: skip LuaLS's own (slower) completions
+                -- for require()/---@module strings in favor of lazydev's,
+                -- per lazydev.nvim's own recommended cmp integration.
+                { name = "lazydev", group_index = 0 },
                 { name = "nvim_lsp" },
                 { name = "luasnip" },
                 { name = "buffer" },
